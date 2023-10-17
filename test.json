@@ -1,0 +1,29 @@
+{
+    "SAF": {
+        "name": "SAF",
+        "type": "repo",
+        "branch": "release/SAN.RL.0.2.0.3",
+        "manifest": "default.xml",
+        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
+    },
+    "DCL":{
+        "name": "DCL",
+        "type": "git",
+        "branch": "release/vmpu.00.06.02",
+        "repos": [
+            {
+                "name": "dcl-manager",
+                "url": "git@githost.nevint.com:ds/dcl/dcl-manager.git"
+            },
+            {
+                "name": "file-upload-service",
+                "url": "git@githost.nevint.com:ds/dcl/file-upload-service.git"
+            },
+            {
+                "name": "logger",
+                "branch": "release/vmpu.00.06.04",
+                "url": "git@githost.nevint.com:ds/mpu-platform/framework/logger.git"
+            }
+        ]
+    }
+}
