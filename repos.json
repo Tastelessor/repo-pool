@@ -184,6 +184,29 @@
             }
         ]
     },
+    "CVF-MCU": {
+        "name": "Vdf",
+        "type": "git",
+        "branch": "release/vdf.rl020.4",
+        "repos": [
+            {
+                "branch": "release/vdf.rl020.4",
+                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/common-utils.git"
+            },
+			{
+                "branch": "release/vdf.rl020.4",
+                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/dkauth-service.git"
+            },
+			{
+                "branch": "release/vdf.rl020.4",
+                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/nfc-manager-service.git"
+            },
+			{
+                "branch": "release/vdf.rl020.4",
+                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/remote-control.git"
+            }
+        ]
+    },
     "Vdf-seL4": {
         "name": "Vdf",
         "type": "repo",
