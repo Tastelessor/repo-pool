@@ -173,7 +173,12 @@ class RepoPool:
             for git_repo in item.repos:
                 if git_repo.get("name") == git_name:
                     return git_repo
-            
+                
+                
+    def update_indices(self):
+        os.system("rm /data/layne/tools/opengrok-1.7.32/src/*")
+        os.system("ln -s /data/layne/src/* /data/layne/tools/opengrok-1.7.32/src/")
+        os.system(f"sh /data/layne/tools/index_restart.sh >> {self.log_file}")
         
     def sync_all(self):
         """synchronise the workspace according to the cfg json file
@@ -184,7 +189,7 @@ class RepoPool:
         self.init_dirs()
         self.init_all_repos()
         self.init_all_gits()
-        os.system(f"sh /data/layne/tools/index_restart.sh >> {self.log_file}")
+        self.update_indices()
         
     def twilight_of_the_gods(self):
         pass
