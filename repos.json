@@ -6,6 +6,20 @@
         "manifest": "default.xml",
         "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
     },
+    "SOAKit": {
+        "name": "SOAKit",
+        "type": "git",
+        "branch": "develop",
+        "repos": [
+            {
+                "url": "git@git.nevint.com:alps-da/test-tools/soakit-ui.git"
+            },
+            {
+                "branch": "main",
+                "url": "git@git.nevint.com:alps-da/soakit.git"
+            }
+        ]
+    },
     "DCL":{
         "name": "DCL",
         "type": "git",

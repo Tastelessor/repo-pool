@@ -4,7 +4,7 @@ import json
 import argparse
 import schedule
 import time
-from datetime import datetime
+import datetime
 from collections import namedtuple
 
 
@@ -16,13 +16,12 @@ class RepoPool:
     def __init__(self, workspace, cfg_file="repos.json"):
         self.workspace=os.path.join(workspace)
         self.log_file=str(os.path.join(workspace, "log.txt"))
-        self.cfg = None
         self.repos = []
         self.gits = []
         self.dir_counts = 0
-        
+        self.synchronisation_times = 1
+        self.cfg_file = cfg_file
         os.chdir(workspace)
-        self.init_cfg(cfg_file)
         
     def init_dirs(self):
         """Init dirs for repos and git repositories
@@ -44,10 +43,13 @@ class RepoPool:
         Raises:
             ValueError: The attribute [repos] of the configuration file is empty
         """
-        os.system(f"echo 'Hello, world!' > {self.log_file}")
+        self.repos = []
+        self.gits = []
+        os.system(f"echo '### Synchronisation NO.{self.synchronisation_times} Starts o(*￣▽￣*)ブ ###' > {self.log_file}")
+        os.system(f"echo '### Synchronised at {datetime.datetime.now()} ###' >> {self.log_file}")
         with open (cfg_file, 'r') as f:
             self.cfg = json.load(f)
-        for key, value in self.cfg.items():
+        for _, value in self.cfg.items():
             if value["type"] == "repo":
                 self.repos.append(Repo(name=value["name"],
                                   type=value["type"],
@@ -171,15 +173,19 @@ class RepoPool:
             for git_repo in item.repos:
                 if git_repo.get("name") == git_name:
                     return git_repo
-    
+            
+        
     def sync_all(self):
-        """Create dirs, update gits and repos
+        """synchronise the workspace according to the cfg json file
         """
         print(f"Synchronisation Start!")
+        os.chdir(self.workspace)
+        self.init_cfg(self.cfg_file)
         self.init_dirs()
         self.init_all_repos()
         self.init_all_gits()
-    
+        os.system(f"sh /data/layne/tools/index_restart.sh >> {self.log_file}")
+        
     def twilight_of_the_gods(self):
         pass
     
@@ -201,6 +207,8 @@ if __name__ == "__main__":
     config_file_path = args.config
     if config_file_path == "repos.json":
         config_file_path = os.path.join(args.workspace, config_file_path)
+    if not os.path.exists(config_file_path):
+        raise LookupError(f"I'm sorry but {config_file_path} doesn't appear to be a valid path :(")
     repo_pool = RepoPool(workspace=args.workspace, cfg_file=config_file_path)
     
     if args.AtOnce:
@@ -208,6 +216,7 @@ if __name__ == "__main__":
     if args.all:
         print(f"All repos configured in [{config_file_path}] will be run every single day at {args.time}")
         schedule.every().day.at(args.time, "Asia/Shanghai").do(repo_pool.sync_all)
+        # schedule.every(1).minutes.do(repo_pool.sync_all)
         while 1:
             schedule.run_pending()
             time.sleep(60)
