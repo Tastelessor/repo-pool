@@ -173,6 +173,17 @@
             }
         ]
     },
+    "App-Framework": {
+        "name": "Vdf",
+        "type": "git",
+        "branch": "develop",
+        "repos": [
+            {
+                "branch": "release/vmpu.00.06.06",
+                "url": "git@githost.nevint.com:ds/mpu-platform/framework/persistence-framework.git"
+            }
+        ]
+    },
     "Vdf-seL4": {
         "name": "Vdf",
         "type": "repo",
