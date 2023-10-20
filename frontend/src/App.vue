@@ -1,26 +1,41 @@
-<template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
-</template>
-
-<script>
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
+import Info from './views/Info.vue'
+import Panel from './views/Panel.vue'
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<template>
+  <div class="main">
+    <Panel class="panel"></Panel>
+    <Info class="info"></Info>
+  </div>
+
+</template>
+
+<style scoped>
+
+.main {
+  position: absolute;
+  display: flex;
+  width: 100vw;
+  height: 100%;
+  left: 0;
+  top: 0;
 }
+
+.panel {
+  position: absolute;
+  display: flex;
+  width: 30vw !important;
+  left: 0;
+}
+
+.info {
+  position: absolute;
+  display: flex;
+  width: 70vw !important;
+  right: 0;
+}
+
 </style>
