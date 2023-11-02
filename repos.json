@@ -1,9 +1,16 @@
 {
-    "SAF": {
-        "name": "SAF",
+    "SAF_Release": {
+        "name": "SAF_Release",
         "type": "repo",
         "branch": "release/SAN.RL.0.2.0.4",
-        "manifest": "default.xml",
+        "manifest": "sa_alps_b.xml",
+        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
+    },
+    "SAF_develop": {
+        "name": "SAF_develop",
+        "type": "repo",
+        "branch": "develop",
+        "manifest": "sa_alps_b.xml",
         "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
     },
     "SOAKit": {
@@ -185,7 +192,7 @@
         ]
     },
     "CVF-MCU": {
-        "name": "Vdf",
+        "name": "CVF-MCU",
         "type": "git",
         "branch": "release/vdf.rl020.4",
         "repos": [

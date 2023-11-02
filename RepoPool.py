@@ -305,7 +305,7 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--update',       action='store_true', help='Update operation')
     parser.add_argument('-a', '--all',          action='store_true', help='Update all repos')
     parser.add_argument('-A', '--AtOnce',       action='store_true', help='Update all repos now')
-    parser.add_argument('-t', '--time',         default="2:00", help='Time to run this program, format (HH:MM)')
+    parser.add_argument('-t', '--time',         default="02:00", help='Time to run this program, format (HH:MM)')
 
     args = parser.parse_args()
     
