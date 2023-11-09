@@ -7,6 +7,7 @@ import time
 import datetime
 import shutil
 from collections import namedtuple
+from collections import defaultdict
 
 
 # Define named-tuple structures
@@ -44,7 +45,6 @@ class RepoPool:
         Raises:
             ValueError: The attribute [repos] of the configuration file is empty
         """
-        previous_repos = self.repos    
         self.repos = [] 
         self.gits = []
         os.system(f"echo '### Synchronisation NO.{self.synchronisation_times} Starts o(*￣▽￣*)ブ ###' > {self.log_file}")
@@ -78,12 +78,53 @@ class RepoPool:
                     self.gits.append(Git(name=value["name"],
                                          branch=default_branch,
                                          repos=repos))
-        # remove unmatched repos
-        if previous_repos != self.repos:
-            for repo in previous_repos:
-                if repo not in self.repos:
-                    shutil.rmtree(os.path.join(self.workspace, repo.name))
+                    
+    def scan_workspace(self):
+        self.previous_repos = []
+        self.previous_gits = defaultdict(list)
+        for root, dirs, _ in os.walk(self.workspace):
+            base_root = os.path.basename(root)
+            if '/.repo' in root or '/.git' in root:
+                continue
+            elif '.repo' in dirs:
+                self.previous_repos.append(base_root)
+            elif '.git' in dirs and not os.path.islink(os.path.join(root, '.git')):
+                self.previous_gits[os.path.basename(os.path.dirname(root))].append(base_root)
     
+    def remove_previous_repos(self):
+        self.scan_workspace()
+        # remove unmatched repos
+        for p_repo in self.previous_repos:
+            delete_repo_dir = True
+            for repo in self.repos:
+                print(f"* comparing {p_repo} with {repo.name}")
+                if p_repo == repo.name:
+                    delete_repo_dir = False
+            if delete_repo_dir:        
+                shutil.rmtree(os.path.join(self.workspace, p_repo))
+        
+        # remove unmatched gits
+        if self.previous_gits != self.gits:
+            print("gits list unmatch, start cleaning")
+            for p_git in self.previous_gits.keys():
+                delete_git_dir = True
+                for git in self.gits:
+                    print(f"* comparing {p_git} and {git.name}")
+                    if p_git == git.name:
+                        delete_git_dir = False
+                        for p_git_repo in self.previous_gits[p_git]:
+                            delete_git = True
+                            for git_repo in git.repos:
+                                print(f"** comparing {p_git_repo} and {git_repo['name']}")
+                                # if two git repos share the same url, the previous would not be deleted
+                                if p_git_repo == git_repo["name"]:
+                                    delete_git = False
+                            if delete_git:
+                                print(f"unmatched! delete {p_git_repo}")
+                                shutil.rmtree(os.path.join(self.workspace, p_git, p_git_repo))
+                if delete_git_dir:
+                    shutil.rmtree(os.path.join(self.workspace, p_git))
+            
     def init_all_repos(self):
         """Init or sync all repo projects
         """
@@ -185,57 +226,6 @@ class RepoPool:
             for git_repo in item.repos:
                 if git_repo.get("name") == git_name:
                     return git_repo
-    
-    def get_all_gits_name(self):
-        """get the nmes of all git projects, and the common dirs where they are placed from the config file
-
-        Returns:
-            list[str]: dirs name
-        """
-        gits_name = []
-        git_dirs_name = []
-        for item in self.gits:
-            git_dirs_name.append(item.name)
-            for git_repo in item.repos:
-                gits_name.append(git_repo.get("name"))
-        return gits_name, git_dirs_name
-    
-    def get_all_repos_name(self):
-        """get the names of all repo projects from the config file
-
-        Returns:
-            list[str]: names of all repo projects
-        """
-        repos_name = []
-        for item in self.repos:
-            repos_name.append(item.name)
-        return repos_name
-    
-    def list_dirs(self, path, depth=2):
-        """get all dirs of a specific path and depth
-
-        Args:
-            path (str): dir path where the search begins
-            depth (int, optional): the depth to do the search. Defaults to 2.
-
-        Returns:
-            list[str]: all dirs in the searched location
-        """
-        if depth < 1:
-            return []
-        dirs = []
-        try:
-            with os.scandir(path) as entries:
-                if depth == 1:
-                    dirs = [str(entry.path) for entry in entries]
-                else:
-                    for entry in entries:
-                        if entry.is_dir():
-                            dirs.extend(self.list_dirs(entry.path, depth - 1))
-        except PermissionError:
-            print(f"Permission denied: {path}")
-        # return list(filter(lambda dir: not dir.startswith('.'), map(lambda path: path[path.rfind('/') + 1:] , dirs)))
-        return dirs
 
     def remove_empty_dirs(self):
         """remove empty dirs under workspace
@@ -246,25 +236,6 @@ class RepoPool:
                     if not any(True for _ in os.scandir(entry.path)):
                         print(f"Removed empty directory: {entry.path}")
                         os.rmdir(entry.path)
-        
-    def remove_abandonned_dirs(self, dirs, dirs_should_exist):
-        """remove dirs that are not in dirs_should_exist
-
-        Args:
-            dirs (list[str]): dirs that shall be deleted
-            dirs_should_exist (list[str]): dirs that shall be kept
-        """
-        for dir in dirs:
-            dir_name = dir[dir.rfind('/')+1 :]
-            if dir_name.startswith('.'):
-                continue
-            elif dir_name not in dirs_should_exist:
-                print(f"Delete {dir} since it's not configured anymore")
-                try:
-                    print(f"Deleted empty directory: {dir}")
-                    shutil.rmtree(dir)
-                except OSError as e:
-                    print(f"Error: {e}")
         
     def update_indices(self):
         """update indices via invoking an existing sh script
@@ -280,10 +251,7 @@ class RepoPool:
         os.chdir(self.workspace)
         self.init_cfg(self.cfg_file)
         # delete abandonned dirs
-        gits_name, git_dirs_name = self.get_all_gits_name()
-        repos_name = self.get_all_repos_name()
-        self.remove_abandonned_dirs(self.list_dirs(path=self.workspace, depth=2), gits_name)
-        self.remove_abandonned_dirs(self.list_dirs(path=self.workspace, depth=1), repos_name + git_dirs_name)
+        self.remove_previous_repos()
         # init repositories
         self.init_dirs()
         self.init_all_repos()

@@ -5,12 +5,45 @@
         "branch": "release/vmpu.00.06.02",
         "repos": [
             {
-                "name": "dcl-manager",
+                "branch": "release/vmpu.00.06.06",
                 "url": "git@githost.nevint.com:ds/dcl/dcl-manager.git"
             },
             {
                 "branch": "release/vmpu.00.06.06",
+                "url": "git@githost.nevint.com:ds/dcl/file-upload-service.git"
+            },
+            {
+                "branch": "release/vmpu.00.06.06",
                 "url": "git@githost.nevint.com:ds/mpu-platform/framework/logger.git"
+            }
+        ]
+    },
+    "CVF-MCU": {
+        "name": "CVF-MCU",
+        "type": "git",
+        "branch": "release/vdf.rl020.4",
+        "repos": [
+			{
+                "branch": "release/vdf.rl020.4",
+                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/remote-control.git"
+            }
+        ]
+    },
+    "Vdf-seL4": {
+        "name": "Vdf",
+        "type": "repo",
+        "branch": "release/vdf.rl020.4",
+        "manifest": "vdc-sel4.xml",
+        "url": "git@githost.nevint.com:ds/vdf/vdf-manifests.git"
+    },
+    "App-Framework": {
+        "name": "Vdf",
+        "type": "git",
+        "branch": "develop",
+        "repos": [
+            {
+                "branch": "release/vmpu.00.06.06",
+                "url": "git@githost.nevint.com:ds/mpu-platform/framework/persistence-framework.git"
             }
         ]
     }
