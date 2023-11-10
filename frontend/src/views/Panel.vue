@@ -5,7 +5,7 @@
         </div>
         <el-form :model="form" class="form" label-width="200px">
             <el-form-item label="修改仓库配置：">
-                <el-button>修改部署配置</el-button>
+                <el-button @click="modify_deployment_config">修改部署配置</el-button>
                 <el-button>上传配置文件</el-button>
             </el-form-item>
             <el-form-item label="添加新仓库：">
@@ -44,10 +44,14 @@
         </el-form>
     </div>
 </template>
-  
-<script lang="ts" setup>
-import { reactive } from 'vue'
 
+<script lang="ts" setup>
+import { emitChangeFn } from 'element-plus';
+import { reactive, ref, onMounted } from 'vue'
+import { io } from 'socket.io-client'
+import { result } from 'lodash';
+
+const socket = ref(null)
 // do not use same name with ref
 const form = reactive({
     name: '',
@@ -63,6 +67,28 @@ const form = reactive({
 const onSubmit = () => {
     console.log('submit!')
 }
+
+onMounted(()=>{
+    socket.value = io('http://localhost:9926')
+    socket.value.on("connect", ()=>{
+        console.log("CONNECT successfully!")
+    })
+})
+
+function modify_deployment_config() {
+    console.log("Modify deployment configuration wanted!")
+    if (socket.value == null){
+        console.log("Failed to connect to socket")
+    }
+    else {
+        socket.value.emit('modify_deployment_config', {})
+        console.log("I did it")
+        socket.value.on("shutup", (data) => {
+            console.log("I received: ", data)
+        })
+    }
+}
+
 </script>
 
 <style scoped>
