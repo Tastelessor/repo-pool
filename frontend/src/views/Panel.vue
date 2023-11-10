@@ -55,7 +55,7 @@ const socket = ref(null)
 // do not use same name with ref
 const form = reactive({
     name: '',
-    dir: '',
+    region: '',
     date1: '',
     date2: '',
     delivery: false,
@@ -100,7 +100,7 @@ const notify_board_switch = () => {
  */
 
 // select target dir
-const dirs = ref(null)
+const dirs = ref([])
 const repo_form = ref({
     dir: '',
     url: '',
@@ -152,25 +152,13 @@ onMounted(()=>{
 </script>
 
 <style scoped>
-@import url('../styles/horizontal-list.css');
+@import url('@/styles/horizontal-list.css');
+@import url('@/styles/el-form.css');
+@import url('@/styles/el-button.css');
 .logo {
   position: absolute;
   left: 10px;
   top: 10px;
   z-index: 1;
-}
-
-.form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-}
-.el-form-item {
-    display: flex;
-    width: 100%;
-}
-
-.el-input {
-    padding-right: 30px;
 }
 </style>

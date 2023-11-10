@@ -1,0 +1,7 @@
+.editor {
+    position: fixed;
+    height: 80%;
+    width: 100%;
+    bottom: 0;
+    font-size: large;
+}
