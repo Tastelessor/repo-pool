@@ -5,7 +5,7 @@
         </div>
         <el-form :model="form" class="form" label-width="200px">
             <el-form-item label="修改仓库配置：">
-                <el-button @click="modify_deployment_config">修改部署配置</el-button>
+                <el-button @click="modify_deployment_config">在线编辑配置</el-button>
                 <el-button @click="notify_board_switch">上传配置文件</el-button>
             </el-form-item>
             <el-form-item label="添加新仓库：">
@@ -19,13 +19,13 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="仓库URL:">
-                <el-input placeholder="只要立哥有权限，你随便放"></el-input>
+                <el-input placeholder="只要立哥有权限，你随便放" v-model="repo_form.url"></el-input>
             </el-form-item>
             <el-form-item label="仓库分支：">
-                <el-input placeholder="手动输入更健康"></el-input>
+                <el-input placeholder="手动输入更健康" v-model="repo_form.branch"></el-input>
             </el-form-item>
             <el-form-item label="确认添加：">
-                <el-button @click="request_add_repo">有这闲工夫瞎点，还不如自己改配置</el-button>
+                <el-button class="not-that-fat" @click="request_add_repo">有这闲工夫瞎点还不如自己改配置</el-button>
             </el-form-item>
             <el-form-item label="高亮分支：">
                 <el-select v-model="form.region" placeholder="右侧高亮选中分支">
@@ -38,15 +38,15 @@
                 <el-button @click="request_update_now">立刻更新</el-button>
             </el-form-item>
             <el-form-item label="我有话想说：">
-                <el-input placeholder="说吧，一个字五块钱"></el-input>
+                <el-input placeholder="说吧，一个字五块钱" v-model="pray_words"></el-input>
             </el-form-item>
-            <el-button @click="request_leave_message">伟大的先知，请聆听我的祈祷</el-button>
+            <el-button class="pray" @click="request_leave_message">伟大的先知，请聆听我的祈祷</el-button>
         </el-form>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { emitChangeFn } from 'element-plus';
+import { ElNotification } from 'element-plus';
 import { reactive, ref, onMounted, getCurrentInstance } from 'vue'
 import { io } from 'socket.io-client'
 import { result } from 'lodash';
@@ -135,10 +135,15 @@ function request_update_now() {
 /**
  * Leave a message to dear me
  */
-const pray_words = ref("Allez tout droit mes amis")
+const pray_words = ref("Je vous aime toujours")
 function request_leave_message() {
     console.log("request to leave a message")
     socket.value.emit("leave_message", pray_words.value)
+    ElNotification({
+        title: '来自伟大的先知',
+        message: '你的祈祷也许会被听见，也许不会。但那又有什么关系呢？',
+        type: 'success',
+  })
 }
 
 const onSubmit = () => {

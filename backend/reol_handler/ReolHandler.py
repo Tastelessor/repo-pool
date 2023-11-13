@@ -3,6 +3,7 @@ import socketio
 import json
 from django.http import JsonResponse
 from django.views import View
+from .ReolConsts import *
 
 sio = socketio.Server(async_mode="eventlet", cors_allowed_origins="*")
 

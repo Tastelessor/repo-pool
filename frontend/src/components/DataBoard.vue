@@ -107,6 +107,7 @@ const value2 = ref(dayjs().add(1, 'month').startOf('month'))
 
 function reset() {
   value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
+  console.log(value1.value)
 }
 </script>
 

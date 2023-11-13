@@ -1,3 +1,12 @@
 .el-button {
     height: 28px;
 }
+
+.not-that-fat {
+    width: fit-content;
+}
+
+.pray {
+    width: fit-content;
+    margin-left: 200px;
+}
