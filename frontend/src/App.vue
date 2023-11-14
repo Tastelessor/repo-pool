@@ -14,18 +14,31 @@
 
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { io } from 'socket.io-client'
+import { ref, onMounted, inject } from 'vue'
+import { global_socket } from './main'
 import Panel from './views/Panel.vue'
 import Info from './views/Info.vue'
 import JsonEditor from './components/JsonEditor.vue'
-import { ref } from 'vue'
 
+const socket = inject("SOCKET", global_socket)
 const show_editor = ref(false)
+
+function connect() {
+    socket.value = io('http://localhost:9926')
+    socket.value.on("connect", ()=>{
+        console.log("CONNECT successfully!")
+    })
+}
+
 const handle_child_emit = (data: string) => {
   console.log("Recevied emit from Panel", data)
   show_editor.value = !show_editor.value
 }
 
+onMounted(() => {
+  connect()
+})
 </script>
 
 

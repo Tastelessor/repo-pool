@@ -27,7 +27,7 @@
             }
         ]
     },
-    "DCL":{
+    "DCL": {
         "name": "DCL",
         "type": "git",
         "branch": "release/vmpu.00.06.06",
@@ -142,10 +142,12 @@
             {
                 "branch": "nio_bsp35.0",
                 "url": "git@githost.nevint.com:ds/linux/linux-s32g-nio.git"
-            },{
+            },
+            {
                 "branch": "release/vmpu.00.06.06",
                 "url": "git@githost.nevint.com:ds/linux/meta-nio-vdf.git"
-            },{
+            },
+            {
                 "branch": "release/vmpu.00.06.06",
                 "url": "git@githost.nevint.com:ds/linux/switch-monitor.git"
             }
@@ -200,15 +202,15 @@
                 "branch": "release/vdf.rl020.4",
                 "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/common-utils.git"
             },
-			{
+            {
                 "branch": "release/vdf.rl020.4",
                 "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/dkauth-service.git"
             },
-			{
+            {
                 "branch": "release/vdf.rl020.4",
                 "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/nfc-manager-service.git"
             },
-			{
+            {
                 "branch": "release/vdf.rl020.4",
                 "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/remote-control.git"
             }

@@ -7,6 +7,9 @@ BASE_DIR = os.path.abspath(os.path.join(REPO_HANDLER_DIR, "../../"))
 BACKEND = "backend"
 FRONTEND = "frontend"
 
+# Cache names
+CACHE = "cache"
+
 REPO_HANDLER = "reol_handler"
 CFG = "configs"
 
@@ -20,3 +23,13 @@ TEST_CFG = "test.json"
 BACKEND_DIR = os.path.join(BASE_DIR, BACKEND)
 FRONTEND_DIR = os.path.join(BASE_DIR, FRONTEND)
 CFG_DIR = os.path.join(BASE_DIR, CFG)
+CACHE_DIR = os.path.join(BASE_DIR, CACHE)
+
+# File path
+SETTINGS_FILE = os.path.join(CFG_DIR, SETTINGS)
+STATISTICS_FILE = os.path.join(CFG_DIR, STATISTICS)
+REPO_CFG_FILE = os.path.join(CFG_DIR, REPO_CFG)
+TEST_CFG_FILE = os.path.join(CFG_DIR, TEST_CFG)
+
+# Cache dir
+CFG_CACHE = os.path.join(CACHE_DIR, CFG)

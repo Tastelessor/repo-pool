@@ -1,6 +1,6 @@
 # cache
-./__pycache__
-
+*/__pycache__
+*/cache/*.*
 # logs
 *.txt
 *.log

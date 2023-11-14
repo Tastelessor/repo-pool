@@ -5,10 +5,10 @@
           <el-countdown
           title="仓库&索引更新倒计时"
           format="HH:mm:ss"
-          :value="value1"
+          :value="sync_countdown"
         />
-        <el-button class="countdown-footer" type="primary" @click="reset"
-          >Reset
+        <el-button class="countdown-footer" @click="reset"
+          >现在就更新吧，不想等了
         </el-button>
       </div>
     </el-col>
@@ -97,18 +97,60 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, onMounted, inject, reactive } from 'vue'
 import dayjs from 'dayjs'
+import { global_socket } from '@/main';
 import { Calendar } from '@element-plus/icons-vue'
 
+const socket = inject("SOCKET", global_socket)
+
 const value = ref(Date.now() + 1000 * 60 * 60 * 7)
-const value1 = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 const value2 = ref(dayjs().add(1, 'month').startOf('month'))
 
-function reset() {
-  value1.value = Date.now() + 1000 * 60 * 60 * 24 * 2
-  console.log(value1.value)
+// Upper data board
+const settings = reactive({
+  workpath:"/home/erwei/project/repopool",
+  sync_time:"02:00"
+})
+
+const statistics = reactive({
+  synchronisation_times: 0,
+  dir_count: 0,
+  repo_project_num: 0,
+  git_project_num: 0,
+  last_update_timecost: 0,
+  average_update_timecost: 0
+})
+
+const repo_cfg = ref(null)
+
+/**
+ * Init countdown
+ */
+const sync_countdown = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
+function init_countdown() {
+  const sync_time = new Date()
+  const [hours, mins] = settings.sync_time.split(":").map(Number)
+  sync_time.setHours(hours, mins, 0, 0)
+  if (sync_time.getHours() >= hours && sync_time.getMinutes() >= mins) {
+    sync_time.setDate(sync_time.getDate() + 1)
+  }
+  sync_countdown.value = sync_time.getTime()
 }
+
+/**
+ * Init statistics
+ */
+
+
+function reset() {
+  sync_countdown.value = Date.now() + 1000 * 60 * 60 * 24 * 2
+  console.log(sync_countdown.value)
+}
+
+onMounted(() => {
+  init_countdown()
+})
 </script>
 
 <style scoped>

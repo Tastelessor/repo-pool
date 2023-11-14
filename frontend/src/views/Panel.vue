@@ -3,9 +3,9 @@
         <div class="title">
             <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
         </div>
-        <el-form :model="form" class="form" label-width="200px">
+        <el-form :model="form" class="form" label-width="150px">
             <el-form-item label="修改仓库配置：">
-                <el-button @click="modify_deployment_config">在线编辑配置</el-button>
+                <el-button @click="notify_board_switch">在线编辑仓库配置</el-button>
                 <el-button @click="notify_board_switch">上传配置文件</el-button>
             </el-form-item>
             <el-form-item label="添加新仓库：">
@@ -32,10 +32,11 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="修改定时任务时间：">
-
+                <el-input placeholder="HH:MM" v-model="update_sync_time" style="width: 100px;"></el-input>
+                <el-button @click="request_leave_message">更新定时任务</el-button>
             </el-form-item>
-            <el-form-item label="立刻更新：">
-                <el-button @click="request_update_now">立刻更新</el-button>
+            <el-form-item label="立刻同步仓库：">
+                <el-button @click="request_update_now">GO !!!</el-button>
             </el-form-item>
             <el-form-item label="我有话想说：">
                 <el-input placeholder="说吧，一个字五块钱" v-model="pray_words"></el-input>
@@ -47,11 +48,11 @@
 
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus';
-import { reactive, ref, onMounted, getCurrentInstance } from 'vue'
-import { io } from 'socket.io-client'
-import { result } from 'lodash';
+import { reactive, ref, onMounted, inject } from 'vue'
+import { global_socket } from '@/main'
 
-const socket = ref(null)
+const socket = inject("SOCKET", global_socket)
+
 // do not use same name with ref
 const form = reactive({
     name: '',
@@ -64,29 +65,22 @@ const form = reactive({
     desc: '',
 })
 
-// Establish websocket connection
-function connect() {
-    socket.value = io('http://localhost:9926')
-    socket.value.on("connect", ()=>{
-        console.log("CONNECT successfully!")
-    })
-}
-
 /**
  * Modify deployment configuration
  */
+
+// upload modifed file content
 function modify_deployment_config() {
     console.log("Modify deployment configuration wanted!")
     if (socket.value == null){
         console.log("Failed to connect to socket")
+        return
     }
-    else {
-        socket.value.emit('modify_deployment_config', {})
-        console.log("I did it")
-        socket.value.once("shutup", (data) => {
-            console.log("I received: ", data)
-        })
-    }
+    socket.value.emit('modify_deployment_config', {})
+    console.log("I did it")
+    socket.value.once("shutup", (data) => {
+        console.log("I received: ", data)
+    })
 }
 
 const parent_emit = defineEmits(["parent_callback"]);
@@ -122,6 +116,17 @@ function request_add_repo() {
 }
 
 /**
+ * Modify update time
+ */
+const update_sync_time = ref("02:00")
+function request_update_sync_time() {
+    console.log("request to update sync time now")
+    socket.value.emit("request_update_sync_time", update_sync_time.value)
+    socket.value.once("request_update_sync_time_ret", (ret)=>{
+        console.log("The update result: ", ret)
+    })
+}
+/**
  * Update immediately
  */
 function request_update_now() {
@@ -151,7 +156,6 @@ const onSubmit = () => {
 }
 
 onMounted(()=>{
-    connect()
     request_dirs()
 })
 </script>
