@@ -1,4 +1,5 @@
 {
-    "workpath":"/home/erwei/project/repopool",
-    "sync_time":"02:00"
+    "workspace": "/home/erwei/project/test",
+    "repo_cfg_path": "/home/erwei/project/repopool/configs/repos.json",
+    "sync_time": "02:02"
 }

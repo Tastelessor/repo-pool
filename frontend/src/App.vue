@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { io } from 'socket.io-client'
-import { ref, onMounted, inject } from 'vue'
+import { ref, onBeforeMount, inject } from 'vue'
 import { global_socket } from './main'
 import Panel from './views/Panel.vue'
 import Info from './views/Info.vue'
@@ -26,7 +26,7 @@ const show_editor = ref(false)
 
 function connect() {
     socket.value = io('http://localhost:9926')
-    socket.value.on("connect", ()=>{
+    socket.value.once("connect", ()=>{
         console.log("CONNECT successfully!")
     })
 }
@@ -36,7 +36,7 @@ const handle_child_emit = (data: string) => {
   show_editor.value = !show_editor.value
 }
 
-onMounted(() => {
+onBeforeMount(() => {
   connect()
 })
 </script>

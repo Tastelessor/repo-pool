@@ -1,7 +1,7 @@
 <template>
     <div class="whole">
         <div class="title">
-            <el-form :model="form" class="form" label-width="120px" style="margin-top: 5px;">
+            <el-form class="form" label-width="120px" style="margin-top: 5px;">
             <el-form-item label="选主题吧，老登:">
                 <el-select v-model="current_theme" placeholder="选主题喽" @change="change_theme">
                     <el-option
@@ -66,7 +66,7 @@ const repo_cfg_json = ref("Failed to load the configuration file :D")
 function request_load_repo_cfg() {
     console.log("request load repo cfg")
     socket.value.emit("request_load_repo_cfg")
-    socket.value.once("request_load_repo_cfg_ret", (ret) => {
+    socket.value.once("request_load_repo_cfg_ret", (ret:JSON) => {
         repo_cfg_json.value = JSON.parse(JSON.stringify(ret))
     })
     console.log("Received repo_cfg: ", repo_cfg_json.value)
@@ -77,7 +77,7 @@ function request_load_repo_cfg() {
 function request_store_repo_cfg() {
     console.log("request store repo cfg: ", repo_cfg_json.value)
     socket.value.emit("request_store_repo_cfg", repo_cfg_json.value)
-    socket.value.once("request_store_repo_cfg_ret", (ret) => {
+    socket.value.once("request_store_repo_cfg_ret", (ret:string) => {
         if (ret) {
             console.log("Successfully stored repo cfg!")
             return

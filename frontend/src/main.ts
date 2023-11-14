@@ -10,7 +10,7 @@ import 'ace-builds/src-noconflict/theme-chrome'
 import 'ace-builds/src-noconflict/theme-github'
 import 'ace-builds/src-noconflict/mode-json'
 
-export const global_socket = ref(null)
+export const global_socket = ref()
 
 const app = createApp(App)
 

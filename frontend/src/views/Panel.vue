@@ -31,9 +31,9 @@
                 <el-select v-model="form.region" placeholder="右侧高亮选中分支">
                 </el-select>
             </el-form-item>
-            <el-form-item label="修改定时任务时间：">
+            <el-form-item label="定时任务时间：">
                 <el-input placeholder="HH:MM" v-model="update_sync_time" style="width: 100px;"></el-input>
-                <el-button @click="request_leave_message">更新定时任务</el-button>
+                <el-button @click="request_update_sync_time">更新定时</el-button>
             </el-form-item>
             <el-form-item label="立刻同步仓库：">
                 <el-button @click="request_update_now">GO !!!</el-button>
@@ -71,16 +71,6 @@ const form = reactive({
 
 // upload modifed file content
 function modify_deployment_config() {
-    console.log("Modify deployment configuration wanted!")
-    if (socket.value == null){
-        console.log("Failed to connect to socket")
-        return
-    }
-    socket.value.emit('modify_deployment_config', {})
-    console.log("I did it")
-    socket.value.once("shutup", (data) => {
-        console.log("I received: ", data)
-    })
 }
 
 const parent_emit = defineEmits(["parent_callback"]);
@@ -94,7 +84,7 @@ const notify_board_switch = () => {
  */
 
 // select target dir
-const dirs = ref([])
+const dirs = ref()
 const repo_form = ref({
     dir: '',
     url: '',
@@ -109,7 +99,7 @@ function request_dirs() {
 function request_add_repo() {
     console.log("Ok ok, I'll request to add a repo")
     socket.value.emit("add_repo", JSON.parse(JSON.stringify(repo_form.value)))
-    socket.value.once("add_repo_ret", (ret) => {
+    socket.value.once("add_repo_ret", (ret:JSON) => {
         const parsed_res = JSON.parse(JSON.stringify(ret))
         console.log("Add result is: ", parsed_res.ret)
     })
@@ -122,8 +112,21 @@ const update_sync_time = ref("02:00")
 function request_update_sync_time() {
     console.log("request to update sync time now")
     socket.value.emit("request_update_sync_time", update_sync_time.value)
-    socket.value.once("request_update_sync_time_ret", (ret)=>{
-        console.log("The update result: ", ret)
+    socket.value.once("request_update_sync_time_ret", (ret:boolean)=>{
+        if (ret){
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '同步时间被更新成功了，我的孩子',
+                type: 'success',
+            })
+        }
+        else {
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '时间格式是HH:MM。我知道也许你会问"你就不能帮我补齐吗"之类的小问题。很遗憾，我的答案是:我可以，但我的自由意志允许我说不:D',
+                type: 'error',
+            })
+        }
     })
 }
 /**
@@ -132,8 +135,27 @@ function request_update_sync_time() {
 function request_update_now() {
     console.log("request to update now")
     socket.value.emit("update_now")
-    socket.value.once("update_now_ret", (ret)=>{
+    ElNotification({
+        title: '来自伟大的先知',
+        message: '你的请求已被收到，回去等通知吧',
+        type: 'success',
+    })
+    socket.value.once("update_now_ret", (ret:boolean)=>{
         console.log("The update result: ", ret)
+        if (ret) {
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '仓库更新成功了，老登',
+                type: 'success',
+            })
+        }
+        else {
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '我不知道你在猴急什么，上次更新还没完呢',
+                type: 'error',
+            })
+        }
     })
 }
 
@@ -149,10 +171,6 @@ function request_leave_message() {
         message: '你的祈祷也许会被听见，也许不会。但那又有什么关系呢？',
         type: 'success',
   })
-}
-
-const onSubmit = () => {
-    console.log('submit!')
 }
 
 onMounted(()=>{

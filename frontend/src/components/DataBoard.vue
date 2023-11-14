@@ -14,7 +14,7 @@
     </el-col>
     <el-col :span="6">
       <div class="statistic-card">
-        <el-statistic :value="72000" title="New transactions today">
+        <el-statistic :value="statistics.git_project_num+statistics.repo_project_num" title="New transactions today">
           <template #title>
             <div style="display: inline-flex; align-items: center">
               当前仓库总量
@@ -41,7 +41,7 @@
     </el-col>
     <el-col :span="6">
       <div class="statistic-card">
-        <el-statistic :value="72.35" :precision="2" title="New transactions today">
+        <el-statistic :value="statistics.last_update_timecost" :precision="2" title="New transactions today">
           <template #title>
             <div style="display: inline-flex; align-items: center">
               上次更新耗时(mins)
@@ -68,7 +68,7 @@
     </el-col>
     <el-col :span="6">
       <div class="statistic-card">
-        <el-statistic :value="62.35" :precision="2" title="New transactions today">
+        <el-statistic :value="statistics.average_update_timecost" :precision="2" title="New transactions today">
           <template #title>
             <div style="display: inline-flex; align-items: center">
               平均更新耗时(mins)
@@ -109,7 +109,8 @@ const value2 = ref(dayjs().add(1, 'month').startOf('month'))
 
 // Upper data board
 const settings = reactive({
-  workpath:"/home/erwei/project/repopool",
+  workpath: "WORKPATH",
+  repo_cfg_path: "REPO_CFG_PATH",
   sync_time:"02:00"
 })
 
@@ -141,7 +142,21 @@ function init_countdown() {
 /**
  * Init statistics
  */
+function request_statistics() {
+  console.log("Request statistics")
+  socket.value.emit("request_statistics")
+  socket.value.once("request_statistics_ret", (ret:string) => {
+    const parsed_ret = JSON.parse(ret)
+    console.log(parsed_ret)
+    Object.keys(parsed_ret).forEach(key => {
+      if (key in statistics) {
+        statistics[key] = parsed_ret[key]
 
+      }
+    })
+  })
+  console.log("last update:", statistics.last_update_timecost)
+}
 
 function reset() {
   sync_countdown.value = Date.now() + 1000 * 60 * 60 * 24 * 2
@@ -150,6 +165,7 @@ function reset() {
 
 onMounted(() => {
   init_countdown()
+  request_statistics()
 })
 </script>
 
