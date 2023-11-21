@@ -1,10 +1,20 @@
 # RepoPool Frontend
 
-Please ensure that the following components are installed:
+Please ensure that the following components are installed, the installation instructions are given:
 
 - nvm
+  ```bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  source ~/.bashrc
+  ```
 - nodejs
+  ```bash
+  nvm install --lts
+  ```
 - npm
+  ```bash
+  sudo apt install npm
+  ```
 
 ## Recommended IDE Setup
 

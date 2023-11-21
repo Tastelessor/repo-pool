@@ -7,9 +7,6 @@
           format="HH:mm:ss"
           :value="sync_countdown"
         />
-        <el-button class="countdown-footer" @click="reset"
-          >现在就更新吧，不想等了
-        </el-button>
       </div>
     </el-col>
     <el-col :span="6">
@@ -114,6 +111,11 @@ const settings = reactive({
   sync_time:"02:00"
 })
 
+interface Map {
+  [key:string]: any
+  [index:number]:any
+}
+
 const statistics = reactive({
   synchronisation_times: 0,
   dir_count: 0,
@@ -121,7 +123,7 @@ const statistics = reactive({
   git_project_num: 0,
   last_update_timecost: 0,
   average_update_timecost: 0
-})
+}) as Map
 
 const repo_cfg = ref(null)
 
@@ -131,10 +133,18 @@ const repo_cfg = ref(null)
 const sync_countdown = ref(Date.now() + 1000 * 60 * 60 * 24 * 2)
 function init_countdown() {
   const sync_time = new Date()
+  const settings_tmp = sessionStorage.getItem('settings')
+  if (settings_tmp !== null){
+    settings.sync_time =  JSON.parse(settings_tmp)["sync_time"]
+  }
   const [hours, mins] = settings.sync_time.split(":").map(Number)
-  sync_time.setHours(hours, mins, 0, 0)
   if (sync_time.getHours() >= hours && sync_time.getMinutes() >= mins) {
+    sync_time.setHours(hours, mins, 0, 0)
     sync_time.setDate(sync_time.getDate() + 1)
+  }
+  else {
+    sync_time.setHours(hours, mins, 0, 0)
+    sync_time.setDate(sync_time.getDate())
   }
   sync_countdown.value = sync_time.getTime()
 }
@@ -148,19 +158,14 @@ function request_statistics() {
   socket.value.once("request_statistics_ret", (ret:string) => {
     const parsed_ret = JSON.parse(ret)
     console.log(parsed_ret)
+    sessionStorage.setItem('statistics', ret)
     Object.keys(parsed_ret).forEach(key => {
       if (key in statistics) {
         statistics[key] = parsed_ret[key]
-
       }
     })
   })
   console.log("last update:", statistics.last_update_timecost)
-}
-
-function reset() {
-  sync_countdown.value = Date.now() + 1000 * 60 * 60 * 24 * 2
-  console.log(sync_countdown.value)
 }
 
 onMounted(() => {

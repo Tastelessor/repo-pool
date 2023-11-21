@@ -1,5 +1,21 @@
 {
     "workspace": "/home/erwei/project/test",
     "repo_cfg_path": "/home/erwei/project/repopool/configs/repos.json",
-    "sync_time": "02:02"
+    "sync_time": "15:06",
+    "dirs": [
+        "SAF_Release",
+        "s32g-nio",
+        "UDS",
+        "SOAKit",
+        "FOTA",
+        "s32g-alps",
+        "Ethpdu",
+        "Conan",
+        "Vdf",
+        "DCL",
+        "nvos3",
+        "EVM",
+        "SAF_develop",
+        "CVF-MCU"
+    ]
 }

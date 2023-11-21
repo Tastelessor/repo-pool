@@ -4,25 +4,28 @@ import json
 import argparse
 import schedule
 import time
-import datetime
+from datetime import datetime
 import shutil
 from collections import namedtuple
 from collections import defaultdict
-
+from .ReolConsts import *
+from .ReolTools import *
 
 # Define named-tuple structures
 Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
 Git = namedtuple("Git", ["name", "branch", "repos"])
 
 class RepoPool:
-    def __init__(self, workspace, cfg_file="repos.json"):
+    def __init__(self, workspace, cfg_file=REPO_CFG_FILE):
         self.workspace=os.path.join(workspace)
         self.log_file=str(os.path.join(workspace, "log.txt"))
         self.repos = []
         self.gits = []
-        self.dir_counts = 0
-        self.synchronisation_times = 1
         self.cfg_file = cfg_file
+        self.repo_cfg = None
+        self.settings = None
+        self.statistics = None
+        self.init_cfg()
         os.chdir(workspace)
         
     def init_dirs(self):
@@ -35,8 +38,7 @@ class RepoPool:
             else:
                 print(f"{item.name} already exists")
                 
-                
-    def init_cfg(self, cfg_file):
+    def init_cfg(self):
         """Init repos & gits from the input cfg file
 
         Args:
@@ -45,13 +47,21 @@ class RepoPool:
         Raises:
             ValueError: The attribute [repos] of the configuration file is empty
         """
+        # Init settings & statistics
+        self.repo_cfg = init_json_cfg(self.repo_cfg, self.cfg_file)
+        self.statistics = init_json_cfg(self.statistics, STATISTICS_FILE)
+        self.settings = init_json_cfg(self.settings, SETTINGS_FILE)
+        self.update_statistics()
+        
+        # Beautiful prints
+        os.system(f"echo '### Synchronisation NO.{self.statistics['synchronisation_times']} Starts o(*￣▽￣*)ブ ###' > {self.log_file}")
+        self.start_time = datetime.now()
+        os.system(f"echo '### Synchronised at {self.start_time} ###' >> {self.log_file}")
+        
+        # Clear stored lists
         self.repos = [] 
         self.gits = []
-        os.system(f"echo '### Synchronisation NO.{self.synchronisation_times} Starts o(*￣▽￣*)ブ ###' > {self.log_file}")
-        os.system(f"echo '### Synchronised at {datetime.datetime.now()} ###' >> {self.log_file}")
-        with open (cfg_file, 'r') as f:
-            self.cfg = json.load(f)
-        for _, value in self.cfg.items():
+        for _, value in self.repo_cfg.items():
             if value["type"] == "repo":
                 self.repos.append(Repo(name=value["name"],
                                   type=value["type"],
@@ -237,6 +247,8 @@ class RepoPool:
                         print(f"Removed empty directory: {entry.path}")
                         os.rmdir(entry.path)
         
+        self.update_statistics()
+        
     def update_indices(self):
         """update indices via invoking an existing sh script
         """
@@ -244,12 +256,36 @@ class RepoPool:
         os.system("ln -s /data/layne/src/* /data/layne/tools/opengrok-1.7.32/src/")
         os.system(f"sh /data/layne/tools/index_restart.sh >> {self.log_file}")
         
+    def update_statistics(self):
+        print(f"Workspace: {self.workspace}, here's the result of os.listdir")
+        print(os.listdir(self.workspace))
+        self.settings["dirs"] = list(filter(lambda dir: os.path.isdir(os.path.join(self.workspace, dir)), os.listdir(self.workspace)))
+        update_json_cfg(self.settings, SETTINGS_FILE)
+        
+        self.statistics["dir_count"] = len(self.settings["dirs"])
+        print("HERE ARE THE DIRS:")
+        print(list(filter(lambda dir: os.path.isdir(dir), os.listdir(self.workspace))))
+        gits_count = 0
+        for git in self.gits:
+            gits_count += len(git.repos)
+        self.statistics["git_project_num"] = gits_count
+        self.statistics["repo_project_num"] = len(self.repos)
+        update_json_cfg(self.statistics, STATISTICS_FILE)
+        
+    def calculate_time(self):
+        timecost = (datetime.now() - self.start_time).total_seconds()/60
+        print(f"Total timecost: {timecost} mins")
+        self.statistics["last_update_timecost"] = timecost
+        self.statistics["average_update_timecost"] = (self.statistics["average_update_timecost"] * self.statistics["synchronisation_times"] + timecost)/(self.statistics["synchronisation_times"] + 1)
+        self.statistics["synchronisation_times"] += 1
+        update_json_cfg(self.statistics, STATISTICS_FILE)
+        
     def sync_all(self):
         """synchronise the workspace according to the cfg json file
         """
         print(f"Synchronisation Start!")
         os.chdir(self.workspace)
-        self.init_cfg(self.cfg_file)
+        self.init_cfg()
         # delete abandonned dirs
         self.remove_previous_repos()
         # init repositories
@@ -259,6 +295,7 @@ class RepoPool:
         # remove empty dirs & update indices
         self.remove_empty_dirs()
         self.update_indices()
+        self.calculate_time()
         
     def twilight_of_the_gods(self):
         pass

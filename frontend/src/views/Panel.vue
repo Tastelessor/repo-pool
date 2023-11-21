@@ -11,7 +11,7 @@
             <el-form-item label="添加新仓库：">
                 <el-select v-model="repo_form.dir" placeholder="放哪个文件夹？">
                     <el-option
-                        v-for="dir in dirs"
+                        v-for="dir in settings.dirs"
                         :key="dir"
                         :label="dir"
                         :value="dir"
@@ -32,7 +32,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="定时任务时间：">
-                <el-input placeholder="HH:MM" v-model="update_sync_time" style="width: 100px;"></el-input>
+                <el-input placeholder="HH:MM" v-model="settings.sync_time" style="width: 100px;"></el-input>
                 <el-button @click="request_update_sync_time">更新定时</el-button>
             </el-form-item>
             <el-form-item label="立刻同步仓库：">
@@ -65,6 +65,18 @@ const form = reactive({
     desc: '',
 })
 
+interface Map {
+  [key:string]: any
+  [index:number]:any
+}
+
+
+const settings = reactive({
+    workspace: "/home/erwei/project/test",
+    repo_cfg_path: "/home/erwei/project/repopool/configs/repos.json",
+    sync_time: "02:00",
+    dirs: []
+}) as Map
 /**
  * Modify deployment configuration
  */
@@ -84,16 +96,11 @@ const notify_board_switch = () => {
  */
 
 // select target dir
-const dirs = ref()
 const repo_form = ref({
     dir: '',
     url: '',
     branch: 'develop'
 })
-
-function request_dirs() {
-    dirs.value = ["ABC", "EFH"]
-}
 
 // request to add
 function request_add_repo() {
@@ -108,10 +115,9 @@ function request_add_repo() {
 /**
  * Modify update time
  */
-const update_sync_time = ref("02:00")
 function request_update_sync_time() {
     console.log("request to update sync time now")
-    socket.value.emit("request_update_sync_time", update_sync_time.value)
+    socket.value.emit("request_update_sync_time", settings.sync_time)
     socket.value.once("request_update_sync_time_ret", (ret:boolean)=>{
         if (ret){
             ElNotification({
@@ -173,8 +179,27 @@ function request_leave_message() {
   })
 }
 
+/**
+ * Request initial settings info
+ */
+function request_settings() {
+    console.log("request settings")
+    socket.value.emit("request_settings")
+    socket.value.once("request_settings_ret", (ret:string) => {
+    const parsed_ret = JSON.parse(ret)
+    console.log(ret)
+    sessionStorage.setItem('settings', ret)
+    Object.keys(parsed_ret).forEach(key => {
+      if (key in settings) {
+        settings[key] = parsed_ret[key]
+      }
+    })
+  })
+  console.log("Settings initialised:", settings)
+}
+
 onMounted(()=>{
-    request_dirs()
+    request_settings()
 })
 </script>
 
