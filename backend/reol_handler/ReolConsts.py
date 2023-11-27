@@ -33,3 +33,6 @@ TEST_CFG_FILE = os.path.join(CFG_DIR, TEST_CFG)
 
 # Cache dir
 CFG_CACHE = os.path.join(CACHE_DIR, CFG)
+
+# Webhook
+LARK_API = "https://open.feishu.cn/open-apis/bot/v2/hook/085b1345-6566-4db5-b1bf-1e38a24c2f31"

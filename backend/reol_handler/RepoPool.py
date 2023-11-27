@@ -10,6 +10,7 @@ from collections import namedtuple
 from collections import defaultdict
 from .ReolConsts import *
 from .ReolTools import *
+from .ReolLark import send_notification
 
 # Define named-tuple structures
 Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
@@ -275,8 +276,8 @@ class RepoPool:
     def calculate_time(self):
         timecost = (datetime.now() - self.start_time).total_seconds()/60
         print(f"Total timecost: {timecost} mins")
-        self.statistics["last_update_timecost"] = timecost
-        self.statistics["average_update_timecost"] = (self.statistics["average_update_timecost"] * self.statistics["synchronisation_times"] + timecost)/(self.statistics["synchronisation_times"] + 1)
+        self.statistics["last_update_timecost"] = round(timecost, 3)
+        self.statistics["average_update_timecost"] = round((self.statistics["average_update_timecost"] * self.statistics["synchronisation_times"] + timecost)/(self.statistics["synchronisation_times"] + 1), 3)
         self.statistics["synchronisation_times"] += 1
         update_json_cfg(self.statistics, STATISTICS_FILE)
         
@@ -296,6 +297,12 @@ class RepoPool:
         self.remove_empty_dirs()
         self.update_indices()
         self.calculate_time()
+        if send_notification(repos_num=(self.statistics["repo_project_num"] + self.statistics["git_project_num"]),
+                          sync_time=self.settings["sync_time"],
+                          time_cost=self.statistics["last_update_timecost"]):
+            print("Synchronisation Success!")
+        else:
+            print("Failed to send lark notification")
         
     def twilight_of_the_gods(self):
         pass

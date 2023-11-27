@@ -32,6 +32,7 @@
 </template>
   
 <script setup lang="ts">
+import { ElNotification } from 'element-plus'
 import { VAceEditor } from 'vue3-ace-editor'
 import 'ace-builds/src-noconflict/theme-chrome'
 import 'ace-builds/src-noconflict/theme-github'
@@ -80,7 +81,18 @@ function request_store_repo_cfg() {
     socket.value.once("request_store_repo_cfg_ret", (ret:string) => {
         if (ret) {
             console.log("Successfully stored repo cfg!")
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '你的改动老师收到啦',
+                type: 'success',
+            })
             return
+        } else {
+            ElNotification({
+                title: '来自伟大的先知',
+                message: '写的什么玩意儿，不收',
+                type: 'error',
+            })
         }
         console.log("Failed to store repo cfg")
     })
