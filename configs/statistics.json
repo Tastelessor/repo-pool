@@ -1,8 +1,8 @@
 {
-    "synchronisation_times": 7,
-    "dir_count": 14,
-    "repo_project_num": 0,
-    "git_project_num": 0,
-    "last_update_timecost": 3.2149022333333335,
-    "average_update_timecost": 6.337068247619049
+    "synchronisation_times": 11,
+    "dir_count": 15,
+    "repo_project_num": 5,
+    "git_project_num": 29,
+    "last_update_timecost": 38.7007431,
+    "average_update_timecost": 20.592818696969697
 }

@@ -11,7 +11,8 @@
         "type": "repo",
         "branch": "develop",
         "manifest": "sa_alps_b.xml",
-        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
+        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git",
+        "compile_cmd": "./scripts/nightly_build.sh --target=ALPS_DOM --board_version=B1"
     },
     "SOAKit": {
         "name": "SOAKit",
@@ -219,8 +220,15 @@
     "Vdf-seL4": {
         "name": "Vdf",
         "type": "repo",
-        "branch": "release/vdf.rl020.4",
+        "branch": "release/vdf.rl021.2",
         "manifest": "vdc-sel4.xml",
+        "url": "git@githost.nevint.com:ds/vdf/vdf-manifests.git"
+    },
+    "Vdf-m": {
+        "name": "Vdf-m",
+        "type": "repo",
+        "branch": "release/vdf.rl021.2",
+        "manifest": "vdc-m7-npt.xml",
         "url": "git@githost.nevint.com:ds/vdf/vdf-manifests.git"
     }
 }

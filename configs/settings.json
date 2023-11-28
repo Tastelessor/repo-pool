@@ -1,21 +1,22 @@
 {
-    "workspace": "/home/erwei/project/test",
-    "repo_cfg_path": "/home/erwei/project/repopool/configs/repos.json",
-    "sync_time": "15:06",
+    "workspace": "/data/layne/src",
+    "repo_cfg_path": "/data/layne/tools/repopool/configs/repos.json",
+    "sync_time": "02:00",
     "dirs": [
-        "SAF_Release",
-        "s32g-nio",
-        "UDS",
-        "SOAKit",
-        "FOTA",
-        "s32g-alps",
-        "Ethpdu",
-        "Conan",
+        "nvos3",
         "Vdf",
         "DCL",
-        "nvos3",
+        "FOTA",
         "EVM",
+        "UDS",
+        "Ethpdu",
+        "s32g-alps",
+        "s32g-nio",
+        "Conan",
+        "SOAKit",
+        "SAF_Release",
+        "CVF-MCU",
         "SAF_develop",
-        "CVF-MCU"
+        "Vdf-m"
     ]
 }

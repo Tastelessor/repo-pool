@@ -8,13 +8,14 @@ from datetime import datetime
 import shutil
 from collections import namedtuple
 from collections import defaultdict
+from .ReolLogger import logger
 from .ReolConsts import *
 from .ReolTools import *
 from .ReolLark import send_notification
 
 # Define named-tuple structures
-Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
-Git = namedtuple("Git", ["name", "branch", "repos"])
+Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url", "compile_cmd"])
+Git = namedtuple("Git", ["name", "branch", "repos", "compile_cmd"])
 
 class RepoPool:
     def __init__(self, workspace, cfg_file=REPO_CFG_FILE):
@@ -33,11 +34,11 @@ class RepoPool:
         """Init dirs for repos and git repositories
         """
         for item in (self.repos + self.gits):
-            print(f"Creating dir for {item.name}...")
+            logger.info(f"Creating dir for {item.name}...")
             if not os.path.exists(item.name):
                 os.mkdir(item.name)
             else:
-                print(f"{item.name} already exists")
+                logger.warn(f"{item.name} already exists")
                 
     def init_cfg(self):
         """Init repos & gits from the input cfg file
@@ -63,34 +64,41 @@ class RepoPool:
         self.repos = [] 
         self.gits = []
         for _, value in self.repo_cfg.items():
+            default_branch = value.get("branch") if value.get("branch") is not None else "develop"
+            default_compile_cmd = value.get("compile_cmd") if value.get("compile_cmd") is not None else None
+            
             if value["type"] == "repo":
                 self.repos.append(Repo(name=value["name"],
                                   type=value["type"],
-                                  branch=value["branch"],
+                                  branch=default_branch,
                                   manifest=value["manifest"],
-                                  url=value["url"]))
+                                  url=value["url"],
+                                  compile_cmd=default_compile_cmd))
             elif value["type"] == "git":
                 if len(value["repos"]) < 1:
                     raise ValueError(f"Invalid git repos for {value['name']}")
                 else:
                     # outer branch is the default branch
                     repos = []
-                    default_branch = value.get("branch") if value.get("branch") is not None else "develop"
                     for item in value["repos"]:
                         # extract the git repo's name
                         url = item["url"]
                         name = url[url.rfind('/') + 1 : url.rfind(".git")]
                         
                         branch = item.get("branch") if item.get("branch") is not None else default_branch
+                        compile_cmd = item.get("compile_cmd") if item.get("compile_cmd") is not None else default_compile_cmd
                         repos.append({"name": name,
                                       "branch": branch,
-                                      "url": item["url"]})
+                                      "url": item["url"],
+                                      "compile_cmd": compile_cmd})
                             
                     self.gits.append(Git(name=value["name"],
                                          branch=default_branch,
+                                         compile_cmd=default_compile_cmd,
                                          repos=repos))
                     
     def scan_workspace(self):
+        logger.info("start scan workspace")
         self.previous_repos = []
         self.previous_gits = defaultdict(list)
         for root, dirs, _ in os.walk(self.workspace):
@@ -98,8 +106,10 @@ class RepoPool:
             if '/.repo' in root or '/.git' in root:
                 continue
             elif '.repo' in dirs:
+                logger.debug(f"add previous repo: [{base_root}]")
                 self.previous_repos.append(base_root)
             elif '.git' in dirs and not os.path.islink(os.path.join(root, '.git')):
+                logger.debug(f"walk to {root}, previous_gits[{os.path.basename(os.path.dirname(root))}].append({base_root})")
                 self.previous_gits[os.path.basename(os.path.dirname(root))].append(base_root)
     
     def remove_previous_repos(self):
@@ -108,33 +118,37 @@ class RepoPool:
         for p_repo in self.previous_repos:
             delete_repo_dir = True
             for repo in self.repos:
-                print(f"* comparing {p_repo} with {repo.name}")
+                logger.debug(f"* comparing {p_repo} with {repo.name}")
                 if p_repo == repo.name:
                     delete_repo_dir = False
             if delete_repo_dir:        
                 shutil.rmtree(os.path.join(self.workspace, p_repo))
         
         # remove unmatched gits
+        logger.critical(self.previous_gits)
         if self.previous_gits != self.gits:
-            print("gits list unmatch, start cleaning")
+            logger.warn("gits list unmatch, start cleaning")
             for p_git in self.previous_gits.keys():
                 delete_git_dir = True
                 for git in self.gits:
-                    print(f"* comparing {p_git} and {git.name}")
+                    logger.debug(f"* comparing {p_git} and {git.name}")
                     if p_git == git.name:
                         delete_git_dir = False
                         for p_git_repo in self.previous_gits[p_git]:
                             delete_git = True
                             for git_repo in git.repos:
-                                print(f"** comparing {p_git_repo} and {git_repo['name']}")
+                                logger.debug(f"** comparing {p_git_repo} and {git_repo['name']}")
                                 # if two git repos share the same url, the previous would not be deleted
                                 if p_git_repo == git_repo["name"]:
                                     delete_git = False
                             if delete_git:
-                                print(f"unmatched! delete {p_git_repo}")
-                                shutil.rmtree(os.path.join(self.workspace, p_git, p_git_repo))
-                if delete_git_dir:
-                    shutil.rmtree(os.path.join(self.workspace, p_git))
+                                p_git_repo_path = os.path.join(self.workspace, p_git, p_git_repo)
+                                logger.debug(f"unmatched! delete {p_git_repo_path}")
+                                shutil.rmtree(p_git_repo_path)
+                dir_to_delete = os.path.join(self.workspace, p_git)
+                if delete_git_dir and os.path.exists(dir_to_delete):
+                    logger.warn(f"delete dir: {dir_to_delete}")
+                    shutil.rmtree(dir_to_delete)
             
     def init_all_repos(self):
         """Init or sync all repo projects
@@ -144,11 +158,15 @@ class RepoPool:
             try:
                 os.chdir(item.name)
                 subprocess.run(["repo", "info"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-                print(f"{item.name} {item.branch} {item.manifest} exists, start synchronising...")
+                logger.info(f"{item.name} {item.branch} {item.manifest} exists")
                 self.update_repo(item)
             except Exception:
-                print(f"{item.name} {item.branch} {item.manifest} does not exist, start initialising...")
+                logger.warn(f"{item.name} {item.branch} {item.manifest} does not exist, start initialising...")
                 self.init_repo(item)
+            if item.compile_cmd is not None and is_cmd_legal(item.compile_cmd):
+                os.system(item.compile_cmd)
+            else:
+                logger.info(f"Skip compiling repo {item.name}")
 
     def init_repo(self, repo):
         """Init a repo
@@ -159,11 +177,11 @@ class RepoPool:
         repo_config_path = os.path.join(self.workspace, repo.name, ".repo")
         if os.path.exists(repo_config_path):
             os.chdir(self.workspace)
-            shutil.rmtree(os.path.dirname(repo_config_path))
             os.mkdir(repo.name)
             os.chdir(repo.name)
-        os.system(f"repo init -u {repo.url} -b {repo.branch} -m {repo.manifest} >> {self.log_file}")
-        self.update_repo(repo)
+            os.system("rm -rf .repo .git .gitignore")
+        os.system(f"repo init -u {repo.url} -b {repo.branch} -m {repo.manifest}")
+        os.system("repo sync -j 32")
     
     def update_repo(self, repo):
         """Sync a repo
@@ -171,7 +189,12 @@ class RepoPool:
         Args:
             repo (named_tuple): Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
         """
-        os.system(f"repo sync -j 32 >> {self.log_file}")
+        os.system("make clean")
+        os.system("repo forall -c 'git reset --hard HEAD'")
+        os.system("git reset --hard HEAD")
+        os.system("git pull")
+        os.system(f"git checkout {repo.branch}")
+        os.system("repo sync -j 32")
         
         
     def init_all_gits(self):
@@ -182,12 +205,18 @@ class RepoPool:
             os.chdir(item.name)
             for git_repo in item.repos:
                 if os.path.exists(git_repo["name"]):
-                    print(f"Updating {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
+                    logger.debug(f"Updating {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
                     self.update_git(git_repo)
                 else:
-                    print(f"Initialising {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
+                    logger.debug(f"Initialising {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
                     self.init_git(git_repo)
-            print(f"{item.name} update to date")
+                if git_repo["compile_cmd"] is not None and is_cmd_legal(git_repo["compile_cmd"]):
+                    logger.debug(f"compile_cmd: {git_repo['compile_cmd']} is executed for {git_repo['name']}")
+                    os.chdir(git_repo["name"])
+                    os.system("make clean")
+                    os.system(git_repo["compile_cmd"])
+                    os.chdir("../")
+            logger.info(f"{item.name} update to date")
                 
     def init_git(self, git):
         """Init a git repository
@@ -206,6 +235,7 @@ class RepoPool:
             git (named_tuple): Git = namedtuple("Git", ["name", "branch", "repos"])
         """
         os.chdir(git["name"])
+        os.system("make clean")
         os.system(f"git pull -f >> {self.log_file}")
         os.system(f"git checkout {git.get('branch')} >> {self.log_file}")
         os.chdir("../")
@@ -245,7 +275,7 @@ class RepoPool:
             for entry in entries:
                 if entry.is_dir():
                     if not any(True for _ in os.scandir(entry.path)):
-                        print(f"Removed empty directory: {entry.path}")
+                        logger.info(f"Removed empty directory: {entry.path}")
                         os.rmdir(entry.path)
         
         self.update_statistics()
@@ -258,14 +288,12 @@ class RepoPool:
         os.system(f"sh /data/layne/tools/index_restart.sh >> {self.log_file}")
         
     def update_statistics(self):
-        print(f"Workspace: {self.workspace}, here's the result of os.listdir")
-        print(os.listdir(self.workspace))
+        logger.info(f"Workspace: {self.workspace}, here's the result of os.listdir")
+        logger.info(f"All dirs: {os.listdir(self.workspace)}")
         self.settings["dirs"] = list(filter(lambda dir: os.path.isdir(os.path.join(self.workspace, dir)), os.listdir(self.workspace)))
         update_json_cfg(self.settings, SETTINGS_FILE)
         
         self.statistics["dir_count"] = len(self.settings["dirs"])
-        print("HERE ARE THE DIRS:")
-        print(list(filter(lambda dir: os.path.isdir(dir), os.listdir(self.workspace))))
         gits_count = 0
         for git in self.gits:
             gits_count += len(git.repos)
@@ -275,7 +303,7 @@ class RepoPool:
         
     def calculate_time(self):
         timecost = (datetime.now() - self.start_time).total_seconds()/60
-        print(f"Total timecost: {timecost} mins")
+        logger.info(f"Total timecost: {timecost} mins")
         self.statistics["last_update_timecost"] = round(timecost, 3)
         self.statistics["average_update_timecost"] = round((self.statistics["average_update_timecost"] * self.statistics["synchronisation_times"] + timecost)/(self.statistics["synchronisation_times"] + 1), 3)
         self.statistics["synchronisation_times"] += 1
@@ -284,7 +312,7 @@ class RepoPool:
     def sync_all(self):
         """synchronise the workspace according to the cfg json file
         """
-        print(f"Synchronisation Start!")
+        logger.info(f"Synchronisation Start!")
         os.chdir(self.workspace)
         self.init_cfg()
         # delete abandonned dirs
@@ -300,9 +328,9 @@ class RepoPool:
         if send_notification(repos_num=(self.statistics["repo_project_num"] + self.statistics["git_project_num"]),
                           sync_time=self.settings["sync_time"],
                           time_cost=self.statistics["last_update_timecost"]):
-            print("Synchronisation Success!")
+            logger.info("Synchronisation Success!")
         else:
-            print("Failed to send lark notification")
+            logger.error("Failed to send lark notification")
         
     def twilight_of_the_gods(self):
         pass

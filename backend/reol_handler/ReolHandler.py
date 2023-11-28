@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from django.http import JsonResponse
 from django.views import View
+from .ReolLogger import logger
 from .RepoPool import RepoPool
 from .ReolConsts import *
 from .ReolTools import *
@@ -23,28 +24,28 @@ Implementation for Panel board
 @sio.event
 def connect(sid, message):
     global reol_
-    print("connect now...")
-    print("Loading configurations...")
-    print("Init RepoPool...")
+    logger.debug("connect now...")
+    logger.debug("Loading configurations...")
+    logger.debug("Init RepoPool...")
     reol_ = init_reol(reol_)
 
 @sio.event
 def request_load_repo_cfg(sid):
     # judge if cfg exists
     global reol_
-    print(f"Try to transfer {REPO_CFG_FILE}")
+    logger.debug(f"Try to transfer {REPO_CFG_FILE}")
     sio.emit("request_load_repo_cfg_ret", json.dumps(reol_.repo_cfg, indent=4))
     
 @sio.event
 def request_settings(sid):
     global reol_
-    print(f"HERE's the settings:{reol_.settings}")
+    logger.debug(f"HERE's the settings:{reol_.settings}")
     sio.emit("request_settings_ret", json.dumps(reol_.settings, indent=4))
     
 @sio.event
 def request_statistics(sid):
     global reol_
-    print("received request statistics")
+    logger.debug("received request statistics")
     sio.emit("request_statistics_ret", json.dumps(reol_.statistics, indent=4))
 
 @sio.event
@@ -64,14 +65,14 @@ def request_store_repo_cfg(sid, message):
 # Add new repo
 @sio.event
 def add_repo(sid, message):
-    print(f"TRY TO ADD NEW REPO {message}")
-    print(f"JSON data branch: {message['branch']}")
+    logger.info(f"TRY TO ADD NEW REPO {message}")
+    logger.debug(f"JSON data branch: {message['branch']}")
     sio.emit("add_repo_ret", {"ret": True})
     
 # Update sync time
 @sio.event
 def request_update_sync_time(sid, message):
-    print(f"Receive request update sync time to: {message}")
+    logger.info(f"Receive request update sync time to: {message}")
     if re.compile(r'^(?:[01]\d|2[0-3]):[0-5]\d$').match(message):
         global reol_
         reol_.settings["sync_time"] = message
@@ -84,11 +85,11 @@ def request_update_sync_time(sid, message):
 @sio.event
 def update_now(sid):
     global reol_
-    print(f"Update now!!!")
+    logger.info(f"Update now!!!")
     sio.emit("update_now_ret", try_sync(reol_))
         
 # Receive from: leave a message
 @sio.event
 def leave_message(sid, message):
-    print(f"Message content: {message}")
+    logger.debug(f"Message content: {message}")
     
