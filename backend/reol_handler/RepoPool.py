@@ -11,7 +11,7 @@ from collections import defaultdict
 from .ReolLogger import logger
 from .ReolConsts import *
 from .ReolTools import *
-from .ReolLark import send_notification
+from .ReolLark import *
 
 # Define named-tuple structures
 Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url", "compile_cmd"])
@@ -325,9 +325,11 @@ class RepoPool:
         self.remove_empty_dirs()
         self.update_indices()
         self.calculate_time()
-        if send_notification(repos_num=(self.statistics["repo_project_num"] + self.statistics["git_project_num"]),
-                          sync_time=self.settings["sync_time"],
-                          time_cost=self.statistics["last_update_timecost"]):
+        if send_notification(sync_success(
+            repos_num=(self.statistics["repo_project_num"] + self.statistics["git_project_num"]),
+            sync_time=self.settings["sync_time"],
+            time_cost=self.statistics["last_update_timecost"]
+            )):
             logger.info("Synchronisation Success!")
         else:
             logger.error("Failed to send lark notification")

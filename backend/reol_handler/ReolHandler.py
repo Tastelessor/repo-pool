@@ -13,6 +13,7 @@ from .RepoPool import RepoPool
 from .ReolConsts import *
 from .ReolTools import *
 from .ReolOperations import *
+from .ReolLark import *
 
 sio = socketio.Server(async_mode="eventlet", cors_allowed_origins="*")
 # RepoPool Instace
@@ -92,4 +93,5 @@ def update_now(sid):
 @sio.event
 def leave_message(sid, message):
     logger.debug(f"Message content: {message}")
+    send_notification(pray_sincerely(message))
     

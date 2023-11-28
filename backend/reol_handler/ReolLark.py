@@ -183,10 +183,48 @@ def sync_success(repos_num, sync_time, time_cost):
     }
     return json.dumps(card)
 
-def send_notification(repos_num, sync_time, time_cost):
+
+def pray_sincerely(pray_words):
+    card = {
+        "msg_type": "interactive",
+        "card": {
+            "config": {
+                "wide_screen_mode": True
+            },
+            "elements": [
+                {
+                    "tag": "markdown",
+                    "content": f"亲爱的<at id=erwei.luo></at>:\n{pray_words}"
+                },
+                {
+                    "tag": "hr"
+                },
+                {
+                    "elements": [
+                        {
+                            "content": "[来自不知名生物]",
+                            "tag": "lark_md"
+                        }
+                    ],
+                    "tag": "note"
+                }
+            ],
+            "header": {
+                "template": "yellow",
+                "title": {
+                    "content": "【尊敬的伟大先知】远方依稀传来不知名生物的低声祈祷",
+                    "tag": "plain_text"
+                }
+            }
+        }
+    }
+    return json.dumps(card)
+
+
+def send_notification(msg_json):
     try:
-        response = requests.post(LARK_API, data=sync_success(
-            repos_num, sync_time, time_cost), headers={"Content-Type": "application/json"})
+        response = requests.post(LARK_API, data=msg_json, headers={
+                                 "Content-Type": "application/json"})
     except Exception as e:
         print(e)
         return False
