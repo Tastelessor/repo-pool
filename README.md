@@ -35,6 +35,7 @@ All of the following attributes shall be configured to trace a repo project:
 - branch:	as it means
 - manifest:	the synchronisation target manifest file
 - url:		git url
+- compile_cmd: compilation command
 
 Let's see an example:
 
@@ -44,9 +45,14 @@ Let's see an example:
         "type": "repo",
         "branch": "release/SAN.RL.0.2.0.3",
         "manifest": "default.xml",
-        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
+        "url": "git@githost.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git",
+	"compile_cmd": "./scripts/nightly_build.sh --target=ALPS_DOM --board_version=B1"
     }
 ```
+
+For the example above, the compilation command will be run after the repo is synchronised.
+
+Note that *compile_cmd* is an optional segment, you can ignore it if compilation is not wanted.
 
 ### Git
 
@@ -60,15 +66,25 @@ Respectively, they will be checked out to branch:
 - file-upload-service:		release/vmpu.00.06.02
 - logger:				release/vmpu.00.06.04
 
+The compilation command *compile_cmd* has the same effect as *branch*.
+
+Respectively, the compilation command for each repo is:
+
+- dcl-manager:			make dcl
+- file-upload-service:		make
+- logger:				make
+
 ```json
     "DCL":{
         "name": "DCL",
         "type": "git",
         "branch": "release/vmpu.00.06.02",
+	"compile_cmd": "make",
         "repos": [
             {
                 "branch": "release/vmpu.00.06.02",
-                "url": "git@githost.nevint.com:ds/dcl/dcl-manager.git"
+                "url": "git@githost.nevint.com:ds/dcl/dcl-manager.git",
+		"compile_cmd": "make dcl"
             },
             {
                 "url": "git@githost.nevint.com:ds/dcl/file-upload-service.git"
