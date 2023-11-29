@@ -95,3 +95,30 @@ def leave_message(sid, message):
     logger.debug(f"Message content: {message}")
     send_notification(pray_sincerely(message))
     
+'''
+Implementation for Databoard
+'''
+# Receive from request_repos
+@sio.event
+def request_repos(sid):
+    global reol_
+    logger.info("Receive from request_repos")
+    sio.emit("request_repos_ret", json.dumps(reol_.repo_cfg))
+    
+# Receive from requeust_branches
+@sio.event
+def request_branches(sid):
+    global reol_
+    logger.info("Receive from request_branches")
+    branches = set()
+    for repo in reol_.repos:
+        logger.debug(f"Add {repo.branch}")
+        branches.add(repo.branch)
+    for git in reol_.gits:
+        if git.branch is not None:
+            logger.debug(f"Add {git.branch}")
+            branches.add(git.branch)
+        for git_repo in git.repos:
+            logger.debug(f"Add {git_repo['branch']}")
+            branches.add(git_repo["branch"])
+    sio.emit("request_branches_ret", list(branches))

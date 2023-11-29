@@ -28,7 +28,13 @@
                 <el-button class="not-that-fat" @click="request_add_repo">有这闲工夫瞎点还不如自己改配置</el-button>
             </el-form-item>
             <el-form-item label="高亮分支：">
-                <el-select v-model="form.region" placeholder="右侧高亮选中分支">
+                <el-select v-model="hl_branch" placeholder="右侧高亮选中分支" @change="on_select_branch">
+                    <el-option
+                        v-for="branch in branches"
+                        :key = "branch"
+                        :label = "branch"
+                        :value = "branch">
+                    </el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="定时任务时间：">
@@ -49,7 +55,7 @@
 <script lang="ts" setup>
 import { ElNotification } from 'element-plus';
 import { reactive, ref, onMounted, inject } from 'vue'
-import { global_socket } from '@/main'
+import { global_socket, global_hl_branch } from '@/main'
 
 const socket = inject("SOCKET", global_socket)
 
@@ -80,11 +86,6 @@ const settings = reactive({
 /**
  * Modify deployment configuration
  */
-
-// upload modifed file content
-function modify_deployment_config() {
-}
-
 const parent_emit = defineEmits(["parent_callback"]);
 
 const notify_board_switch = () => {
@@ -110,6 +111,22 @@ function request_add_repo() {
         const parsed_res = JSON.parse(JSON.stringify(ret))
         console.log("Add result is: ", parsed_res.ret)
     })
+}
+
+/**
+ * Highlight a specific branch
+ */
+const branches = ref<string[]>([])
+const hl_branch = inject("HL_BRANCH", global_hl_branch)
+function request_branches() {
+    socket.value.emit("request_branches")
+    socket.value.once("request_branches_ret", (ret: Array<string>) => {
+        branches.value = ret
+    })
+}
+
+function on_select_branch() {
+    sessionStorage.setItem('hl_branch', hl_branch.value)
 }
 
 /**
@@ -147,7 +164,6 @@ function request_update_now() {
         type: 'success',
     })
     socket.value.once("update_now_ret", (ret:boolean)=>{
-        console.log("The update result: ", ret)
         if (ret) {
             ElNotification({
                 title: '来自伟大的先知',
@@ -195,11 +211,11 @@ function request_settings() {
       }
     })
   })
-  console.log("Settings initialised:", settings)
 }
 
 onMounted(()=>{
     request_settings()
+    request_branches()
 })
 </script>
 
