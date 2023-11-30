@@ -53,7 +53,6 @@ class RepoPool:
         self.repo_cfg = init_json_cfg(self.repo_cfg, self.cfg_file)
         self.statistics = init_json_cfg(self.statistics, STATISTICS_FILE)
         self.settings = init_json_cfg(self.settings, SETTINGS_FILE)
-        self.update_statistics()
         
         # Beautiful prints
         os.system(f"echo '### Synchronisation NO.{self.statistics['synchronisation_times']} Starts o(*￣▽￣*)ブ ###' > {self.log_file}")
@@ -96,6 +95,7 @@ class RepoPool:
                                          branch=default_branch,
                                          compile_cmd=default_compile_cmd,
                                          repos=repos))
+        self.update_statistics()
                     
     def scan_workspace(self):
         logger.info("start scan workspace")
