@@ -116,9 +116,9 @@ def request_branches(sid):
         branches.add(repo.branch)
     for git in reol_.gits:
         if git.branch is not None:
-            logger.debug(f"Add {git.branch}")
+            logger.debug(f"Add branch {git.branch}")
             branches.add(git.branch)
         for git_repo in git.repos:
-            logger.debug(f"Add {git_repo['branch']}")
+            logger.debug(f"Add branch {git_repo['branch']}")
             branches.add(git_repo["branch"])
     sio.emit("request_branches_ret", list(branches))

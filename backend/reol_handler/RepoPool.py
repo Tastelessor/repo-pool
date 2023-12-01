@@ -177,7 +177,10 @@ class RepoPool:
         repo_config_path = os.path.join(self.workspace, repo.name, ".repo")
         if os.path.exists(repo_config_path):
             os.chdir(self.workspace)
-            os.mkdir(repo.name)
+            if not os.path.exists(repo.name):
+                os.mkdir(repo.name)
+            else:
+                logger.warn(f"{repo.name} has already existed")
             os.chdir(repo.name)
             os.system("rm -rf .repo .git .gitignore")
         os.system(f"repo init -u {repo.url} -b {repo.branch} -m {repo.manifest}")
