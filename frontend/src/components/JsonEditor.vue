@@ -2,7 +2,7 @@
     <div class="whole">
         <div class="title">
             <el-form class="form" label-width="120px" style="margin-top: 5px;">
-            <el-form-item label="选主题吧，老登:">
+            <el-form-item label="主题选择:">
                 <el-select v-model="current_theme" placeholder="选主题喽" @change="change_theme">
                     <el-option
                         v-for="theme in ace_available_themes"
@@ -13,13 +13,10 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="保存配置:">
-                <el-button @click="request_store_repo_cfg">老师我写完了</el-button>
+                <el-button @click="request_store_repo_cfg">来人，写完了</el-button>
             </el-form-item>
             <el-form-item label="恢复配置:">
-                <el-button @click="request_load_repo_cfg">老板给我换一张纸</el-button>
-            </el-form-item>
-            <el-form-item label="请点击全屏:">
-                <el-button>没想到吧，随便你怎么滑动，编辑器就是不变小</el-button>
+                <el-button @click="request_load_repo_cfg">来人，换纸</el-button>
             </el-form-item>
         </el-form>
         </div>
@@ -97,6 +94,14 @@ function request_store_repo_cfg() {
         console.log("Failed to store repo cfg")
     })
     sessionStorage.setItem("repo_cfg_json", repo_cfg_json.value)
+}
+
+function soft_words() {
+    ElNotification({
+        title: '来自伟大的先知',
+        message: '您的好评我们已经收到，期待您的下次评价',
+        type: 'success',
+    })
 }
 
 onMounted(()=>{

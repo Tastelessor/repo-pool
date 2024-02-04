@@ -14,7 +14,7 @@ def sync_success(repos_num, sync_time, time_cost):
                 "template": "red",
                 "title": {
                     "tag": "plain_text",
-                    "content": "🔥🔥🔥 恭喜老登，你的仓库刚刚同步成功了🔥🔥🔥 "
+                    "content": "🔥🔥🔥 恭喜这位爷，您的仓库刚刚同步成功了🔥🔥🔥 "
                 }
             },
             "elements": [
