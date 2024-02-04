@@ -17,6 +17,7 @@
         "SAF_Release",
         "CVF-MCU",
         "SAF_develop",
-        "Vdf-m"
+        "Vdf-m",
+        "nvos3_release"
     ]
 }
