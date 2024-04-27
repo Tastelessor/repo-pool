@@ -1,23 +1,21 @@
 {
     "workspace": "/data/layne/src",
     "repo_cfg_path": "/data/layne/tools/repopool/configs/repos.json",
-    "sync_time": "02:00",
+    "sync_time": "00:00",
     "dirs": [
+        "SAF_Release",
+        "SAF_develop",
         "nvos3",
+        "nvos3_release",
         "Vdf",
+        "Vdf-mcu",
+        "SOAKit",
         "DCL",
         "FOTA",
-        "EVM",
         "UDS",
         "Ethpdu",
         "s32g-alps",
         "s32g-nio",
-        "Conan",
-        "SOAKit",
-        "SAF_Release",
-        "CVF-MCU",
-        "SAF_develop",
-        "Vdf-m",
-        "nvos3_release"
+        "Conan"
     ]
 }

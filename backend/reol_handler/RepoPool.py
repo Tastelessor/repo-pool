@@ -156,13 +156,12 @@ class RepoPool:
         for item in self.repos:
             os.chdir(self.workspace)
             try:
-                os.chdir(item.name)
-                subprocess.run(["repo", "info"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-                logger.info(f"{item.name} {item.branch} {item.manifest} exists")
-                self.update_repo(item)
+                os.system(f"rm -rf {item.name}")
             except Exception:
-                logger.warn(f"{item.name} {item.branch} {item.manifest} does not exist, start initialising...")
-                self.init_repo(item)
+                logger.warn(f"Failed to clean [{item.name}]...")
+                pray_sincerely("[{item.name}] 清理失败...请手动重置")
+                continue
+            self.init_repo(item)
             if item.compile_cmd is not None and is_cmd_legal(item.compile_cmd):
                 os.system(item.compile_cmd)
             else:
@@ -174,32 +173,11 @@ class RepoPool:
         Args:
             repo (named_tuple): Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
         """
-        repo_config_path = os.path.join(self.workspace, repo.name, ".repo")
-        if os.path.exists(repo_config_path):
-            os.chdir(self.workspace)
-            if not os.path.exists(repo.name):
-                os.mkdir(repo.name)
-            else:
-                logger.warn(f"{repo.name} has already existed")
-            os.chdir(repo.name)
-            os.system("rm -rf .repo .git .gitignore")
+        os.mkdir(repo.name)
+        os.chdir(repo.name)
         os.system(f"repo init -u {repo.url} -b {repo.branch} -m {repo.manifest}")
-        os.system("repo sync -j 32")
-    
-    def update_repo(self, repo):
-        """Sync a repo
+        os.system("repo sync -j 32 --force-sync")
 
-        Args:
-            repo (named_tuple): Repo = namedtuple("Repo", ["name", "type", "branch", "manifest", "url"])
-        """
-        os.system("make clean")
-        os.system("repo forall -c 'git reset --hard HEAD'")
-        os.system("git reset --hard HEAD")
-        os.system("git pull")
-        os.system(f"git checkout {repo.branch}")
-        os.system("repo sync -j 32")
-        
-        
     def init_all_gits(self):
         """Init or update all git repositories
         """
@@ -207,12 +185,10 @@ class RepoPool:
             os.chdir(self.workspace)
             os.chdir(item.name)
             for git_repo in item.repos:
+                logger.debug(f"Initialising {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
                 if os.path.exists(git_repo["name"]):
-                    logger.debug(f"Updating {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
-                    self.update_git(git_repo)
-                else:
-                    logger.debug(f"Initialising {git_repo.get('name')} {git_repo.get('branch')}... Please kill me if you don't wanna wait")
-                    self.init_git(git_repo)
+                    os.system(f"rm -rf {git_repo['name']}")
+                self.init_git(git_repo)
                 if git_repo["compile_cmd"] is not None and is_cmd_legal(git_repo["compile_cmd"]):
                     logger.debug(f"compile_cmd: {git_repo['compile_cmd']} is executed for {git_repo['name']}")
                     os.chdir(git_repo["name"])
@@ -226,24 +202,10 @@ class RepoPool:
         Args:
             git (named_tuple): Git = namedtuple("Git", ["name", "branch", "repos"])
         """
-        os.system(f"git clone --depth=5 {git.get('url')} >> {self.log_file}")
-        os.chdir(git["name"])
-        os.system(f"git checkout {git.get('branch')} >> {self.log_file}")
-        os.chdir("../")
-        
-    def update_git(self, git):
-        """Update a git repository
+        os.system(f"git clone --depth=1 {git.get('url')} -b {git.get('branch')} >> {self.log_file}")
+        if (not os.path.exists(git["name"])):
+            os.system(f"git clone --depth=1 {git.get('url')} >> {self.log_file}")
 
-        Args:
-            git (named_tuple): Git = namedtuple("Git", ["name", "branch", "repos"])
-        """
-        os.chdir(git["name"])
-        os.system("make clean")
-        os.system(f"git pull -f >> {self.log_file}")
-        os.system(f"git checkout {git.get('branch')} >> {self.log_file}")
-        os.chdir("../")
-
-    
     def get_repo_by_name(self, repo_name):
         """return a repo by repo name (defined in the cfg json)
 
@@ -316,6 +278,7 @@ class RepoPool:
         """synchronise the workspace according to the cfg json file
         """
         logger.info(f"Synchronisation Start!")
+        os.system("sudo chown -hR layne.zhang /data/layne/src/*")
         os.chdir(self.workspace)
         self.init_cfg()
         # delete abandonned dirs

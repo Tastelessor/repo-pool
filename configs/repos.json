@@ -2,7 +2,7 @@
     "SAF_Release": {
         "name": "SAF_Release",
         "type": "repo",
-        "branch": "release/SAN.RL.0.3.0.2",
+        "branch": "release/SAN.RL.0.4.0.2",
         "manifest": "sa_alps_b.xml",
         "url": "git@git.nevint.com:ds/nt3-cvf/smart-antenna/nad-nio/nad-nio-manifests.git"
     },
@@ -31,7 +31,7 @@
     "DCL": {
         "name": "DCL",
         "type": "git",
-        "branch": "release/vmpu.00.07.01",
+        "branch": "release/vmpu.00.07.07",
         "repos": [
             {
                 "url": "git@git.nevint.com:ds/dcl/dcl-manager.git"
@@ -47,55 +47,51 @@
     "FOTA": {
         "name": "FOTA",
         "type": "git",
-        "branch": "release/vdf.rl030.1",
+        "branch": "release/vdf.rl040.2",
         "repos": [
             {
                 "url": "git@git.nevint.com:ds/fota-master.git"
             },
             {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/fota-service.git"
             },
             {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/download-service.git"
-            }
-        ]
-    },
-    "EVM": {
-        "name": "EVM",
-        "type": "git",
-        "branch": "develop",
-        "repos": [
+            },
             {
-                "branch": "develop",
-                "url": "git@git.nevint.com:ds/vdf/vdf-mpu/data_collection.git"
+                "url": "git@git.nevint.com:ds/did-collection.git"
+            },
+            {
+                "url": "git@git.nevint.com:ds/fota-delivery.git"
+            },
+            {
+                "url": "git@git.nevint.com:ds/mpu-apps/ntx-db.git"
+            },
+            {
+                "branch": "release/vmpu.00.07.07",
+                "url": "git@git.nevint.com:ds/mpu-platform/core-components/kmss.git"
             }
         ]
     },
     "UDS": {
         "name": "UDS",
         "type": "git",
-        "branch": "develop",
+        "branch": "release/vdf.rl040.2",
         "repos": [
             {
-                "branch": "develop",
                 "url": "git@git.nevint.com:ds/mpu-apps/uds-config-vdf.git"
             },
             {
-                "branch": "develop",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/mpu-apps/uds-handler.git"
             },
             {
-                "branch": "develop",
                 "url": "git@git.nevint.com:ds/mpu-apps/uds-handler-vdf.git"
             },
             {
-                "branch": "develop",
-                "url": "git@git.nevint.com:ds/fota-delivery.git"
-            },
-            {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/mpu-platform/core-components/uds-server.git"
             }
         ]
@@ -105,7 +101,7 @@
         "type": "git",
         "repos": [
             {
-                "branch": "develop",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/mpu-platform/core-components/ethpdu-messenger.git"
             }
         ]
@@ -145,11 +141,11 @@
                 "url": "git@git.nevint.com:ds/linux/linux-s32g-nio.git"
             },
             {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.02",
                 "url": "git@git.nevint.com:ds/linux/meta-nio-vdf.git"
             },
             {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.02",
                 "url": "git@git.nevint.com:ds/linux/switch-monitor.git"
             }
         ]
@@ -164,7 +160,7 @@
     "nvos3_release": {
         "name": "nvos3_release",
         "type": "repo",
-        "branch": "release/vsel4.00.07.01",
+        "branch": "release/vsel4.00.07.07",
         "manifest": "seL4/os-sel4.xml",
         "url": "git@git.nevint.com:ds/mpu-repo-manifests.git"
     },
@@ -179,59 +175,29 @@
             }
         ]
     },
-    "Vdf-manifests": {
-        "name": "Vdf",
-        "type": "git",
-        "branch": "develop",
-        "repos": [
-            {
-                "branch": "develop",
-                "url": "git@git.nevint.com:ds/vdf/vdf-sel4.git"
-            }
-        ]
-    },
     "App-Framework": {
         "name": "Vdf",
         "type": "git",
         "branch": "develop",
         "repos": [
             {
-                "branch": "release/vmpu.00.07.01",
+                "branch": "release/vmpu.00.07.07",
                 "url": "git@git.nevint.com:ds/mpu-platform/framework/persistence-framework.git"
             }
         ]
     },
-    "CVF-MCU": {
-        "name": "CVF-MCU",
-        "type": "git",
-        "branch": "release/vdf.rl030.1",
-        "repos": [
-            {
-                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/common-utils.git"
-            },
-            {
-                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/dkauth-service.git"
-            },
-            {
-                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/nfc-manager-service.git"
-            },
-            {
-                "url": "git@git.nevint.com:nt3/nt3-cvf/vdf/vdf-mcu/remote-control.git"
-            }
-        ]
-    },
-    "Vdf-seL4": {
+    "Vdf": {
         "name": "Vdf",
         "type": "repo",
-        "branch": "release/vdf.rl030.1",
+        "branch": "release/vdf.rl040.2",
         "manifest": "vdc-sel4.xml",
         "url": "git@git.nevint.com:ds/vdf/vdf-manifests.git"
     },
-    "Vdf-m": {
-        "name": "Vdf-m",
+    "Vdf-cvf-infra": {
+        "name": "Vdf-mcu",
         "type": "repo",
-        "branch": "release/vdf.rl030.1",
-        "manifest": "vdc-m7-npt.xml",
+        "branch": "release/vdf.rl040.2",
+        "manifest": "vdc-m7-infra-cvf.xml",
         "url": "git@git.nevint.com:ds/vdf/vdf-manifests.git"
     }
 }
