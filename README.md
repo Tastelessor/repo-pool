@@ -6,6 +6,22 @@ Initialise/synchronise repositories to better view code in Gork env (ref: https:
 
 ## Usage
 
+### GUI
+
+You're allowed to access the sites via the user chat group. A notification will be sent every time a synchronization is triggered.
+
+![1720071011323](image/README/1720071011323.png)
+
+You shall first configure your synchronisation settings before looking throught the source code
+
+![1720071196042](image/README/1720071196042.png)
+
+You are then able to browse the source code freely! Enjoy :D
+
+![1720071344707](image/README/1720071344707.png)
+
+### CMD
+
 Running with the following command:
 
 ```bash
@@ -127,7 +143,5 @@ However, since they both specify "Vdf" as their "name". As a result, they will b
 ## Prospective
 
 For bugs reporting or new requirements to be implemented, please contact: Erwei Luo
-
-![1697524587402](image/README/dieu.png)
 
 You feedback is important to us, pls don't hesitate to contact me if there's anything that I can help with. Merci beaucoup:)
